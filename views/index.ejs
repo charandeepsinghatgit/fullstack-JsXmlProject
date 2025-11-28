@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  
+  <main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <h1>Find Your Next Freelance Opportunity</h1>
+          <p>Search thousands of remote jobs with smart location insights and currency conversion</p>
+          
+          <form action="/jobs/search" method="GET" class="search-form">
+            <div class="search-inputs">
+              <div class="input-group">
+                <i class="fas fa-search"></i>
+                <input type="text" name="query" placeholder="Job title or keyword..." class="search-input">
+              </div>
+              
+              <div class="input-group">
+                <i class="fas fa-map-marker-alt"></i>
+                <input type="text" name="location" placeholder="Location (optional)" class="search-input">
+              </div>
+              
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Search Jobs
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+      <div class="container">
+        <h2 class="section-title">Why FreelanceHub?</h2>
+        
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-globe"></i>
+            </div>
+            <h3>Global Opportunities</h3>
+            <p>Access freelance jobs from around the world with detailed location insights</p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-dollar-sign"></i>
+            </div>
+            <h3>Currency Conversion</h3>
+            <p>View salaries in your preferred currency with real-time conversion rates</p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <h3>Time Zone Info</h3>
+            <p>Understand time differences for better remote work planning</p>
+          </div>
+          
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-bookmark"></i>
+            </div>
+            <h3>Save & Compare</h3>
+            <p>Bookmark interesting opportunities and compare them side by side</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Jobs -->
+    <% if (featuredJobs && featuredJobs.length > 0) { %>
+    <section class="featured-jobs">
+      <div class="container">
+        <h2 class="section-title">Featured Remote Opportunities</h2>
+        
+        <div class="jobs-grid">
+          <% featuredJobs.forEach(job => { %>
+            <div class="job-card">
+              <div class="job-header">
+                <h3 class="job-title"><%= job.title %></h3>
+                <div class="company-name"><%= job.company.display_name %></div>
+              </div>
+              
+              <div class="job-details">
+                <span class="job-location">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <%= job.location.display_name %>
+                </span>
+                
+                <% if (job.salary_min && job.salary_max) { %>
+                  <span class="job-salary">
+                    <i class="fas fa-dollar-sign"></i>
+                    $<%= Math.round(job.salary_min).toLocaleString() %> - $<%= Math.round(job.salary_max).toLocaleString() %>
+                  </span>
+                <% } %>
+              </div>
+              
+              <p class="job-description"><%= job.description.substring(0, 150) %>...</p>
+              
+              <a href="/jobs/detail/<%= job.id %>?country=us" class="btn btn-secondary">View Details</a>
+            </div>
+          <% }); %>
+        </div>
+        
+        <div class="text-center" style="margin-top: 2rem;">
+          <a href="/jobs/search" class="btn btn-primary">View All Jobs</a>
+        </div>
+      </div>
+    </section>
+    <% } %>
+
+    <!-- Top Companies -->
+    <% if (topCompanies && topCompanies.length > 0) { %>
+    <section class="top-companies">
+      <div class="container">
+        <h2 class="section-title">Top Companies Hiring</h2>
+        
+        <div class="companies-grid">
+          <% topCompanies.forEach(company => { %>
+            <div class="company-card">
+              <div class="company-name"><%= company.canonical_name %></div>
+              <div class="company-jobs"><%= company.count %> open positions</div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    </section>
+    <% } %>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+      <div class="container">
+        <h2>Ready to explore freelance tools?</h2>
+        <p>Use our currency converter and time zone calculator to plan your freelance career</p>
+        <a href="/tools" class="btn btn-white">Explore Tools</a>
+      </div>
+    </section>
+  </main>
+
+  <%- include('partials/footer') %>
+  
+  <script src="/js/main.js"></script>
+</body>
+</html>

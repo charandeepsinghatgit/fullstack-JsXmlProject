@@ -1,0 +1,125 @@
+body {
+  font-family: "Inter", sans-serif;
+  margin: 0;
+  background: #f4f8fb;
+  color: #222;
+}
+
+header {
+  background: #0d6efd;
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h1 a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+nav a {
+  margin-left: 20px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+.container {
+  width: 90%;
+  max-width: 1100px;
+  margin: 30px auto;
+}
+
+/* ------------------------------
+   JOB LISTING CARDS
+--------------------------------*/
+.job-card {
+  background: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.06);
+  transition: transform 0.2s ease;
+}
+
+.job-card:hover {
+  transform: translateY(-5px);
+}
+
+.job-title {
+  font-size: 22px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.salary {
+  color: #0d6efd;
+  font-weight: bold;
+}
+
+.location {
+  font-size: 14px;
+  color: #444;
+}
+
+/* ------------------------------
+   BUTTONS
+--------------------------------*/
+.btn {
+  padding: 10px 18px;
+  background: #0d6efd;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  display: inline-block;
+  transition: 0.2s;
+}
+
+.btn:hover {
+  background: #024dbc;
+}
+
+/* ------------------------------
+   JOB DETAILS PAGE
+--------------------------------*/
+.job-detail-box {
+  background: white;
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0px 4px 15px rgba(0,0,0,0.08);
+}
+
+.detail-heading {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.info-label {
+  font-weight: bold;
+  margin-top: 15px;
+  display: block;
+}
+
+.flag {
+  width: 60px;
+  border-radius: 4px;
+}
+
+/* ------------------------------
+   FOOTER
+--------------------------------*/
+footer {
+  text-align: center;
+  padding: 20px;
+  margin-top: 40px;
+  color: #666;
+}

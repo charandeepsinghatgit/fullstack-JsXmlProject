@@ -1,0 +1,26 @@
+<header class="header">
+  <div class="container">
+    <nav class="navbar">
+      <a href="/" class="logo">
+        <i class="fas fa-briefcase"></i>
+        <span>FreelanceHub</span>
+      </a>
+      
+      <ul class="nav-menu">
+        <li><a href="/" class="nav-link">Home</a></li>
+        <li><a href="/jobs/search" class="nav-link">Find Jobs</a></li>
+        <li><a href="/tools" class="nav-link">Tools</a></li>
+        <li><a href="/jobs/saved" class="nav-link">
+          <i class="fas fa-bookmark"></i> Saved 
+          <% if (savedJobs && savedJobs.length > 0) { %>
+            <span class="badge"><%= savedJobs.length %></span>
+          <% } %>
+        </a></li>
+      </ul>
+
+      <button class="mobile-toggle" id="mobileToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    </nav>
+  </div>
+</header>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  
+  <main>
+    <section class="search-page">
+      <div class="container">
+        <h1>Search Freelance Jobs</h1>
+        
+        <!-- Search Form -->
+        <form action="/jobs/search" method="GET" class="search-form-page">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="query">Keywords</label>
+              <input type="text" id="query" name="query" value="<%= query %>" placeholder="e.g. web developer, designer" class="form-input">
+            </div>
+            
+            <div class="form-group">
+              <label for="location">Location</label>
+              <input type="text" id="location" name="location" value="<%= location %>" placeholder="City or country" class="form-input">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="country">Country</label>
+              <select id="country" name="country" class="form-input">
+                <option value="us" <%= country === 'us' ? 'selected' : '' %>>United States</option>
+                <option value="gb" <%= country === 'gb' ? 'selected' : '' %>>United Kingdom</option>
+                <option value="ca" <%= country === 'ca' ? 'selected' : '' %>>Canada</option>
+                <option value="au" <%= country === 'au' ? 'selected' : '' %>>Australia</option>
+                <option value="de" <%= country === 'de' ? 'selected' : '' %>>Germany</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="currency">Currency</label>
+              <select id="currency" name="currency" class="form-input">
+                <% currencies.forEach(curr => { %>
+                  <option value="<%= curr.code %>" <%= selectedCurrency === curr.code ? 'selected' : '' %>>
+                    <%= curr.code %> - <%= curr.name %>
+                  </option>
+                <% }); %>
+              </select>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-search"></i> Search
+          </button>
+        </form>
+
+        <!-- Results Info -->
+        <% if (jobs.length > 0) { %>
+          <div class="results-info">
+            <p>Found <strong><%= totalResults.toLocaleString() %></strong> results
+            <% if (query) { %>
+              for "<strong><%= query %></strong>"
+            <% } %>
+            <% if (averageSalary > 0) { %>
+              | Average Salary: <strong>$<%= Math.round(averageSalary).toLocaleString() %></strong>
+            <% } %>
+            </p>
+          </div>
+        <% } %>
+
+        <!-- Error Message -->
+        <% if (error) { %>
+          <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <%= error %>
+          </div>
+        <% } %>
+
+        <!-- Job Results -->
+        <div class="jobs-list">
+          <% if (jobs.length === 0 && !error) { %>
+            <div class="no-results">
+              <i class="fas fa-search"></i>
+              <h3>No jobs found</h3>
+              <p>Try adjusting your search criteria or browse all opportunities</p>
+            </div>
+          <% } else { %>
+            <% jobs.forEach(job => { %>
+              <div class="job-card-list">
+                <div class="job-card-header">
+                  <div>
+                    <h3 class="job-title">
+                      <a href="/jobs/detail/<%= job.id %>?country=<%= country %>"><%= job.title %></a>
+                    </h3>
+                    <div class="company-name"><%= job.company.display_name %></div>
+                  </div>
+                  
+                  <button class="btn-save" data-job-id="<%= job.id %>" data-title="<%= job.title %>" data-company="<%= job.company.display_name %>" data-location="<%= job.location.display_name %>">
+                    <i class="far fa-bookmark"></i>
+                  </button>
+                </div>
+                
+                <div class="job-meta">
+                  <span class="meta-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <%= job.location.display_name %>
+                  </span>
+                  
+                  <% if (job.category && job.category.label) { %>
+                    <span class="meta-item">
+                      <i class="fas fa-tag"></i>
+                      <%= job.category.label %>
+                    </span>
+                  <% } %>
+                  
+                  <% if (job.contract_type) { %>
+                    <span class="meta-item">
+                      <i class="fas fa-briefcase"></i>
+                      <%= job.contract_type %>
+                    </span>
+                  <% } %>
+                  
+                  <span class="meta-item">
+                    <i class="fas fa-calendar"></i>
+                    <%= new Date(job.created).toLocaleDateString() %>
+                  </span>
+                </div>
+                
+                <% if (job.salary_min && job.salary_max) { %>
+                  <div class="job-salary-info">
+                    <i class="fas fa-dollar-sign"></i>
+                    <% if (job.converted_salary_min && job.converted_currency) { %>
+                      <%= job.converted_currency %> <%= Math.round(job.converted_salary_min).toLocaleString() %> - <%= Math.round(job.converted_salary_max).toLocaleString() %>
+                      <span class="salary-note">(Original: $<%= Math.round(job.salary_min).toLocaleString() %> - $<%= Math.round(job.salary_max).toLocaleString() %>)</span>
+                    <% } else { %>
+                      $<%= Math.round(job.salary_min).toLocaleString() %> - $<%= Math.round(job.salary_max).toLocaleString() %>
+                    <% } %>
+                  </div>
+                <% } %>
+                
+                <p class="job-description"><%= job.description.substring(0, 250) %>...</p>
+                
+                <a href="/jobs/detail/<%= job.id %>?country=<%= country %>" class="btn btn-secondary">View Full Details</a>
+              </div>
+            <% }); %>
+          <% } %>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalResults > 20) { %>
+          <div class="pagination">
+            <% if (currentPage > 1) { %>
+              <a href="?query=<%= query %>&location=<%= location %>&country=<%= country %>&currency=<%= selectedCurrency %>&page=<%= currentPage - 1 %>" class="btn btn-secondary">
+                <i class="fas fa-chevron-left"></i> Previous
+              </a>
+            <% } %>
+            
+            <span class="page-info">Page <%= currentPage %></span>
+            
+            <% if (currentPage * 20 < totalResults) { %>
+              <a href="?query=<%= query %>&location=<%= location %>&country=<%= country %>&currency=<%= selectedCurrency %>&page=<%= currentPage + 1 %>" class="btn btn-secondary">
+                Next <i class="fas fa-chevron-right"></i>
+              </a>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+    </section>
+  </main>
+
+  <%- include('partials/footer') %>
+  
+  <script src="/js/main.js"></script>
+</body>
+</html>

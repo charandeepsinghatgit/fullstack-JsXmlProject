@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  
+  <main>
+    <section class="tools-page">
+      <div class="container">
+        <h1>Freelancer Tools</h1>
+        <p class="subtitle">Essential calculators and converters for freelancers</p>
+
+        <div class="tools-grid">
+          <!-- Currency Converter -->
+          <div class="tool-card">
+            <div class="tool-header">
+              <i class="fas fa-exchange-alt tool-icon"></i>
+              <h2>Currency Converter</h2>
+            </div>
+            
+            <p>Convert salaries and rates between different currencies</p>
+            
+            <form id="currencyForm" class="tool-form">
+              <div class="form-group">
+                <label for="amount">Amount</label>
+                <input type="number" id="amount" name="amount" step="0.01" placeholder="Enter amount" class="form-input" required>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="fromCurrency">From</label>
+                  <select id="fromCurrency" name="from" class="form-input">
+                    <% currencies.forEach(curr => { %>
+                      <option value="<%= curr.code %>" <%= curr.code === 'USD' ? 'selected' : '' %>>
+                        <%= curr.code %> - <%= curr.name %>
+                      </option>
+                    <% }); %>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label for="toCurrency">To</label>
+                  <select id="toCurrency" name="to" class="form-input">
+                    <% currencies.forEach(curr => { %>
+                      <option value="<%= curr.code %>" <%= curr.code === 'EUR' ? 'selected' : '' %>>
+                        <%= curr.code %> - <%= curr.name %>
+                      </option>
+                    <% }); %>
+                  </select>
+                </div>
+              </div>
+              
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-calculator"></i> Convert
+              </button>
+            </form>
+            
+            <div id="conversionResult" class="result-box" style="display: none;"></div>
+          </div>
+
+          <!-- Time Zone Calculator -->
+          <div class="tool-card">
+            <div class="tool-header">
+              <i class="fas fa-clock tool-icon"></i>
+              <h2>Time Zone Calculator</h2>
+            </div>
+            
+            <p>Calculate time differences for remote work coordination</p>
+            
+            <div class="tool-form">
+              <div class="form-group">
+                <label for="localTime">Your Local Time</label>
+                <input type="time" id="localTime" class="form-input" value="09:00">
+              </div>
+              
+              <div class="form-group">
+                <label for="localTimezone">Your Timezone</label>
+                <select id="localTimezone" class="form-input">
+                  <option value="-5">EST (UTC-5)</option>
+                  <option value="-6">CST (UTC-6)</option>
+                  <option value="-7">MST (UTC-7)</option>
+                  <option value="-8">PST (UTC-8)</option>
+                  <option value="0">UTC (UTC+0)</option>
+                  <option value="1">CET (UTC+1)</option>
+                  <option value="5.5">IST (UTC+5:30)</option>
+                  <option value="8">CST China (UTC+8)</option>
+                  <option value="9">JST (UTC+9)</option>
+                  <option value="10">AEST (UTC+10)</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="targetTimezone">Target Timezone</label>
+                <select id="targetTimezone" class="form-input">
+                  <option value="-5">EST (UTC-5)</option>
+                  <option value="-6">CST (UTC-6)</option>
+                  <option value="-7">MST (UTC-7)</option>
+                  <option value="-8">PST (UTC-8)</option>
+                  <option value="0" selected>UTC (UTC+0)</option>
+                  <option value="1">CET (UTC+1)</option>
+                  <option value="5.5">IST (UTC+5:30)</option>
+                  <option value="8">CST China (UTC+8)</option>
+                  <option value="9">JST (UTC+9)</option>
+                  <option value="10">AEST (UTC+10)</option>
+                </select>
+              </div>
+              
+              <button type="button" class="btn btn-primary" onclick="calculateTimezone()">
+                <i class="fas fa-clock"></i> Calculate
+              </button>
+            </div>
+            
+            <div id="timezoneResult" class="result-box" style="display: none;"></div>
+          </div>
+
+          <!-- Rate Calculator -->
+          <div class="tool-card">
+            <div class="tool-header">
+              <i class="fas fa-dollar-sign tool-icon"></i>
+              <h2>Hourly Rate Calculator</h2>
+            </div>
+            
+            <p>Calculate your ideal hourly rate based on desired annual income</p>
+            
+            <div class="tool-form">
+              <div class="form-group">
+                <label for="annualIncome">Desired Annual Income</label>
+                <input type="number" id="annualIncome" placeholder="e.g., 80000" class="form-input">
+              </div>
+              
+              <div class="form-group">
+                <label for="workingHours">Hours per Week</label>
+                <input type="number" id="workingHours" value="40" class="form-input">
+              </div>
+              
+              <div class="form-group">
+                <label for="vacationWeeks">Vacation Weeks per Year</label>
+                <input type="number" id="vacationWeeks" value="2" class="form-input">
+              </div>
+              
+              <button type="button" class="btn btn-primary" onclick="calculateRate()">
+                <i class="fas fa-calculator"></i> Calculate Rate
+              </button>
+            </div>
+            
+            <div id="rateResult" class="result-box" style="display: none;"></div>
+          </div>
+
+          <!-- Quick Tips -->
+          <div class="tool-card">
+            <div class="tool-header">
+              <i class="fas fa-lightbulb tool-icon"></i>
+              <h2>Freelancer Tips</h2>
+            </div>
+            
+            <ul class="tips-list">
+              <li><strong>Always factor in taxes:</strong> Set aside 25-30% for taxes</li>
+              <li><strong>Consider overhead:</strong> Include costs for software, equipment, and insurance</li>
+              <li><strong>Time zone awareness:</strong> Be clear about availability in client's timezone</li>
+              <li><strong>Currency fluctuations:</strong> Monitor exchange rates for international clients</li>
+              <li><strong>Contract clarity:</strong> Always specify payment terms and currency</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <%- include('partials/footer') %>
+  
+  <script>
+    // Currency Converter
+    document.getElementById('currencyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const amount = document.getElementById('amount').value;
+      const from = document.getElementById('fromCurrency').value;
+      const to = document.getElementById('toCurrency').value;
+      const resultDiv = document.getElementById('conversionResult');
+      
+      try {
+        const response = await fetch('/tools/convert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount, from, to })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          resultDiv.innerHTML = `
+            <div class="result-success">
+              <h3>Conversion Result</h3>
+              <p class="conversion-amount">${data.converted.formatted}</p>
+              <p class="conversion-details">
+                ${data.original.formatted} = ${data.converted.formatted}<br>
+                Exchange Rate: 1 ${from} = ${data.rate.toFixed(4)} ${to}<br>
+                <small>Rate updated: ${data.date}</small>
+              </p>
+            </div>
+          `;
+          resultDiv.style.display = 'block';
+        } else {
+          resultDiv.innerHTML = `<div class="result-error">Conversion failed: ${data.error}</div>`;
+          resultDiv.style.display = 'block';
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<div class="result-error">Error: ${error.message}</div>`;
+        resultDiv.style.display = 'block';
+      }
+    });
+
+    // Timezone Calculator
+    function calculateTimezone() {
+      const localTime = document.getElementById('localTime').value;
+      const localTZ = parseFloat(document.getElementById('localTimezone').value);
+      const targetTZ = parseFloat(document.getElementById('targetTimezone').value);
+      const resultDiv = document.getElementById('timezoneResult');
+      
+      if (!localTime) {
+        resultDiv.innerHTML = '<div class="result-error">Please select a time</div>';
+        resultDiv.style.display = 'block';
+        return;
+      }
+      
+      const [hours, minutes] = localTime.split(':').map(Number);
+      const difference = targetTZ - localTZ;
+      let targetHours = hours + difference;
+      
+      // Handle day overflow
+      let dayDiff = '';
+      if (targetHours >= 24) {
+        targetHours -= 24;
+        dayDiff = ' (next day)';
+      } else if (targetHours < 0) {
+        targetHours += 24;
+        dayDiff = ' (previous day)';
+      }
+      
+      const targetTime = `${String(Math.floor(targetHours)).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+      const diffText = difference >= 0 ? `+${difference}` : difference;
+      
+      resultDiv.innerHTML = `
+        <div class="result-success">
+          <h3>Time Conversion</h3>
+          <p class="conversion-amount">${targetTime}${dayDiff}</p>
+          <p class="conversion-details">
+            Your ${localTime} = ${targetTime}${dayDiff} in target timezone<br>
+            Time difference: ${diffText} hours
+          </p>
+        </div>
+      `;
+      resultDiv.style.display = 'block';
+    }
+
+    // Rate Calculator
+    function calculateRate() {
+      const annualIncome = parseFloat(document.getElementById('annualIncome').value);
+      const hoursPerWeek = parseFloat(document.getElementById('workingHours').value);
+      const vacationWeeks = parseFloat(document.getElementById('vacationWeeks').value);
+      const resultDiv = document.getElementById('rateResult');
+      
+      if (!annualIncome || !hoursPerWeek) {
+        resultDiv.innerHTML = '<div class="result-error">Please enter all values</div>';
+        resultDiv.style.display = 'block';
+        return;
+      }
+      
+      const workingWeeks = 52 - vacationWeeks;
+      const totalHours = workingWeeks * hoursPerWeek;
+      const hourlyRate = annualIncome / totalHours;
+      const withOverhead = hourlyRate * 1.3; // 30% overhead
+      
+      resultDiv.innerHTML = `
+        <div class="result-success">
+          <h3>Recommended Hourly Rate</h3>
+          <p class="conversion-amount">$${hourlyRate.toFixed(2)}/hour</p>
+          <p class="conversion-details">
+            Based on ${workingWeeks} working weeks and ${hoursPerWeek} hours/week<br>
+            <strong>With 30% overhead: $${withOverhead.toFixed(2)}/hour</strong><br>
+            <small>Total billable hours: ${totalHours.toLocaleString()}/year</small>
+          </p>
+        </div>
+      `;
+      resultDiv.style.display = 'block';
+    }
+  </script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

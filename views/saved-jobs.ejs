@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  
+  <main>
+    <section class="saved-jobs-page">
+      <div class="container">
+        <h1><i class="fas fa-bookmark"></i> Saved Jobs</h1>
+        <p class="subtitle">Jobs you've bookmarked for later review</p>
+
+        <% if (savedJobs.length === 0) { %>
+          <div class="empty-state">
+            <i class="fas fa-bookmark"></i>
+            <h2>No saved jobs yet</h2>
+            <p>Start browsing and save jobs you're interested in!</p>
+            <a href="/jobs/search" class="btn btn-primary">Browse Jobs</a>
+          </div>
+        <% } else { %>
+          <div class="saved-jobs-list">
+            <% savedJobs.forEach((job, index) => { %>
+              <div class="saved-job-card">
+                <div class="saved-job-info">
+                  <h3><%= job.title %></h3>
+                  <p class="company"><i class="fas fa-building"></i> <%= job.company %></p>
+                  <p class="location"><i class="fas fa-map-marker-alt"></i> <%= job.location %></p>
+                  <p class="saved-date">
+                    <i class="fas fa-calendar"></i> 
+                    Saved <%= new Date(job.savedAt).toLocaleDateString() %>
+                  </p>
+                </div>
+                
+                <div class="saved-job-actions">
+                  <a href="/jobs/detail/<%= job.id %>" class="btn btn-secondary">View Details</a>
+                  <button class="btn btn-remove" onclick="removeSavedJob('<%= job.id %>', <%= index %>)">
+                    <i class="fas fa-trash"></i> Remove
+                  </button>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } %>
+      </div>
+    </section>
+  </main>
+
+  <%- include('partials/footer') %>
+  
+  <script>
+    async function removeSavedJob(jobId, index) {
+      if (!confirm('Are you sure you want to remove this job from your saved list?')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/jobs/unsave/${jobId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (response.ok) {
+          location.reload();
+        }
+      } catch (error) {
+        console.error('Error removing job:', error);
+        alert('Failed to remove job');
+      }
+    }
+  </script>
+  <script src="/js/main.js"></script>
+</body>
+</html>
