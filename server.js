@@ -1,43 +1,25 @@
-require("dotenv").config();
-const express = require("express");
-const session = require("express-session");
-const path = require("path");
+require('dotenv').config();
+const express = require('express');
+const session = require('express-session');
+const path = require('path');
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Session middleware for saved jobs
+app.use(session({
+  secret: 'freelancehub-secret-key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+}));
 
-
-// -------------------------------
-// Middleware
-// -------------------------------
-
-// Parse JSON + Form data
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-// Sessions – stores saved jobs & preferences
-app.use(
-  session({
-    secret: "supersecretkey", // change if pushing online
-    resave: false,
-    saveUninitialized: true,
-  })
-);
-
-// Static files
-app.use(express.static(path.join(__dirname, "public")));
-
-// View engine
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
-
-// -------------------------------
-// GLOBAL TEMPLATE VARIABLES
-// Makes savedJobs available to ALL views + partials
-// -------------------------------
+// Initialize saved jobs in session
 app.use((req, res, next) => {
   if (!req.session.savedJobs) {
     req.session.savedJobs = [];
@@ -46,32 +28,38 @@ app.use((req, res, next) => {
   next();
 });
 
-// -------------------------------
+// View engine setup
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 // Routes
-// -------------------------------
-const indexRoutes = require("./routes/index");
-const jobRoutes = require("./routes/jobs");
-const toolRoutes = require("./routes/tools");
+const indexRoutes = require('./routes/index');
+const jobRoutes = require('./routes/jobs');
+const toolRoutes = require('./routes/tools');
 
-// Use routes
-app.use("/", indexRoutes);
-app.use("/jobs", jobRoutes);
-app.use("/tools", toolRoutes);
+app.use('/', indexRoutes);
+app.use('/jobs', jobRoutes);
+app.use('/tools', toolRoutes);
 
-// -------------------------------
-// 404 Handler
-// -------------------------------
+// Error handling
 app.use((req, res) => {
-  res.status(404).render("error", {
-    title: "Page Not Found",
-    message: "The page you're looking for doesn't exist.",
+  res.status(404).render('error', { 
+    title: 'Page Not Found',
+    message: 'The page you are looking for does not exist.',
+    error: { status: 404 }
   });
 });
 
-// -------------------------------
-// Start Server
-// -------------------------------
-const PORT = process.env.PORT || 3000;
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).render('error', {
+    title: 'Error',
+    message: 'Something went wrong!',
+    error: err
+  });
+});
+
+// Start server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`FreelanceHub server running on http://localhost:${PORT}`);
 });

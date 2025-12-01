@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <%- include('partials/header') %>
+  
+  <main>
+    <section class="job-detail-page">
+      <div class="container">
+        <a href="/jobs/search" class="back-link">
+          <i class="fas fa-arrow-left"></i> Back to Search
+        </a>
+
+        <div class="job-detail-content">
+          <div class="job-main">
+            <div class="job-detail-header">
+              <div>
+                <h1><%= job.title %></h1>
+                <div class="company-info">
+                  <h2><%= job.company.display_name %></h2>
+                </div>
+              </div>
+              
+              <button class="btn-save-large <%= isSaved ? 'saved' : '' %>" 
+                      data-job-id="<%= job.id %>" 
+                      data-title="<%= job.title %>" 
+                      data-company="<%= job.company.display_name %>" 
+                      data-location="<%= job.location.display_name %>">
+                <i class="<%= isSaved ? 'fas' : 'far' %> fa-bookmark"></i>
+                <%= isSaved ? 'Saved' : 'Save Job' %>
+              </button>
+            </div>
+
+            <div class="job-meta-detail">
+              <div class="meta-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <div>
+                  <strong>Location</strong>
+                  <p><%= job.location.display_name %></p>
+                </div>
+              </div>
+              
+              <% if (job.category && job.category.label) { %>
+                <div class="meta-item">
+                  <i class="fas fa-tag"></i>
+                  <div>
+                    <strong>Category</strong>
+                    <p><%= job.category.label %></p>
+                  </div>
+                </div>
+              <% } %>
+              
+              <% if (job.contract_type) { %>
+                <div class="meta-item">
+                  <i class="fas fa-briefcase"></i>
+                  <div>
+                    <strong>Contract Type</strong>
+                    <p><%= job.contract_type %></p>
+                  </div>
+                </div>
+              <% } %>
+              
+              <div class="meta-item">
+                <i class="fas fa-calendar"></i>
+                <div>
+                  <strong>Posted</strong>
+                  <p><%= new Date(job.created).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+                </div>
+              </div>
+            </div>
+
+            <% if (job.salary_min && job.salary_max) { %>
+              <div class="salary-box">
+                <h3><i class="fas fa-dollar-sign"></i> Salary Range</h3>
+                <div class="salary-range">
+                  $<%= Math.round(job.salary_min).toLocaleString() %> - $<%= Math.round(job.salary_max).toLocaleString() %>
+                </div>
+                
+                <div class="currency-converter-inline">
+                  <label for="targetCurrency">Convert to:</label>
+                  <select id="targetCurrency" class="form-input">
+                    <% currencies.forEach(curr => { %>
+                      <option value="<%= curr.code %>"><%= curr.code %> - <%= curr.name %></option>
+                    <% }); %>
+                  </select>
+                  <button class="btn btn-secondary" onclick="convertSalary()">Convert</button>
+                </div>
+                
+                <div id="convertedSalary" class="converted-salary" style="display: none;"></div>
+              </div>
+            <% } %>
+
+            <div class="job-description-section">
+              <h3>Job Description</h3>
+              <div class="job-description-content">
+                <%- job.description.replace(/\n/g, '<br>') %>
+              </div>
+            </div>
+
+            <div class="job-actions">
+              <a href="<%= job.redirect_url %>" target="_blank" class="btn btn-primary btn-large">
+                <i class="fas fa-external-link-alt"></i> Apply Now
+              </a>
+            </div>
+          </div>
+
+          <aside class="job-sidebar">
+            <% if (countryInfo) { %>
+              <div class="info-card">
+                <h3>
+                  <% if (countryInfo.flag) { %>
+                    <img src="<%= countryInfo.flag %>" alt="<%= countryInfo.name %> flag" class="country-flag">
+                  <% } %>
+                  Location Details
+                </h3>
+                
+                <div class="info-item">
+                  <strong>Country:</strong>
+                  <span><%= countryInfo.name %></span>
+                </div>
+                
+                <div class="info-item">
+                  <strong>Capital:</strong>
+                  <span><%= countryInfo.capital %></span>
+                </div>
+                
+                <div class="info-item">
+                  <strong>Region:</strong>
+                  <span><%= countryInfo.region %></span>
+                </div>
+                
+                <% if (countryInfo.languages.length > 0) { %>
+                  <div class="info-item">
+                    <strong>Languages:</strong>
+                    <span><%= countryInfo.languages.join(', ') %></span>
+                  </div>
+                <% } %>
+                
+                <% if (countryInfo.currencies.length > 0) { %>
+                  <div class="info-item">
+                    <strong>Currency:</strong>
+                    <span><%= countryInfo.currencies.join(', ') %></span>
+                  </div>
+                <% } %>
+                
+                <% if (countryInfo.timezones.length > 0) { %>
+                  <div class="info-item">
+                    <strong>Time Zones:</strong>
+                    <span class="timezone-list">
+                      <% countryInfo.timezones.forEach(tz => { %>
+                        <span class="timezone-badge"><%= tz %></span>
+                      <% }); %>
+                    </span>
+                  </div>
+                <% } %>
+              </div>
+            <% } %>
+
+            <div class="info-card">
+              <h3><i class="fas fa-building"></i> About the Company</h3>
+              <p><strong><%= job.company.display_name %></strong></p>
+              <% if (job.location && job.location.area) { %>
+                <p class="company-location">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <%= job.location.area.join(', ') %>
+                </p>
+              <% } %>
+            </div>
+
+            <div class="info-card">
+              <h3><i class="fas fa-calculator"></i> Freelancer Tools</h3>
+              <p>Use our tools to help with your freelance career</p>
+              <a href="/tools" class="btn btn-secondary btn-block">
+                <i class="fas fa-tools"></i> View Tools
+              </a>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <%- include('partials/footer') %>
+  
+  <script>
+    const jobSalaryMin = <%= job.salary_min || 0 %>;
+    const jobSalaryMax = <%= job.salary_max || 0 %>;
+    
+    async function convertSalary() {
+      const targetCurrency = document.getElementById('targetCurrency').value;
+      const resultDiv = document.getElementById('convertedSalary');
+      
+      if (!jobSalaryMin || !jobSalaryMax) {
+        return;
+      }
+      
+      try {
+        const minResponse = await fetch('/tools/convert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: jobSalaryMin,
+            from: 'USD',
+            to: targetCurrency
+          })
+        });
+        
+        const maxResponse = await fetch('/tools/convert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: jobSalaryMax,
+            from: 'USD',
+            to: targetCurrency
+          })
+        });
+        
+        const minData = await minResponse.json();
+        const maxData = await maxResponse.json();
+        
+        if (minData.success && maxData.success) {
+          resultDiv.innerHTML = `
+            <strong>Converted Salary:</strong><br>
+            ${minData.converted.formatted} - ${maxData.converted.formatted}<br>
+            <small>Exchange rate: 1 USD = ${minData.rate.toFixed(4)} ${targetCurrency}</small>
+          `;
+          resultDiv.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Conversion error:', error);
+        resultDiv.innerHTML = '<span style="color: #e74c3c;">Conversion failed</span>';
+        resultDiv.style.display = 'block';
+      }
+    }
+  </script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

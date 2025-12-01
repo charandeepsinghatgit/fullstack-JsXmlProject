@@ -50,7 +50,7 @@ async function getJobDetails(country = 'us', adId) {
     };
 
     const response = await axios.get(
-      `${BASE_URL}/${country}/details/${adId}`,
+      `${BASE_URL}/${country}//${adId}`,
       { params }
     );
 

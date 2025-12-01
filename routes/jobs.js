@@ -9,10 +9,8 @@ router.get('/search', async (req, res) => {
   try {
     const { query = '', location = '', country = 'us', page = 1, currency = 'USD' } = req.query;
     
-    // Search for jobs
     const jobsResult = await searchJobs(country, query, location, page);
 
-    // Convert salaries if needed
     let jobsWithConvertedSalary = [];
     if (jobsResult.success && jobsResult.data.length > 0) {
       jobsWithConvertedSalary = await Promise.all(
@@ -36,9 +34,9 @@ router.get('/search', async (req, res) => {
     res.render('jobs', {
       title: 'Job Search - FreelanceHub',
       jobs: jobsWithConvertedSalary,
-      query: query,
-      location: location,
-      country: country,
+      query,
+      location,
+      country,
       currentPage: parseInt(page),
       totalResults: jobsResult.count || 0,
       averageSalary: jobsResult.mean || 0,
@@ -46,6 +44,7 @@ router.get('/search', async (req, res) => {
       selectedCurrency: currency,
       error: jobsResult.success ? null : 'Failed to load jobs'
     });
+
   } catch (error) {
     console.error('Job Search Error:', error);
     res.render('jobs', {
@@ -67,11 +66,11 @@ router.get('/search', async (req, res) => {
 // Job detail page
 router.get('/detail/:adref', async (req, res) => {
   try {
-    const { id } = req.params;
+    const { adref } = req.params;       
     const { country = 'us' } = req.query;
 
-    // Get job details
-    const jobResult = await getJobDetails(country, id);
+    // Fetch job details using the correct adref
+    const jobResult = await getJobDetails(country, adref);
 
     if (!jobResult.success) {
       return res.render('error', {
@@ -88,29 +87,27 @@ router.get('/detail/:adref', async (req, res) => {
     if (job.location?.area && job.location.area.length > 0) {
       const locationParts = job.location.area;
       const countryName = locationParts[locationParts.length - 1];
-      
+
       const countryResult = await getCountryByName(countryName);
       if (countryResult.success) {
         countryInfo = formatCountryData(countryResult.data);
       }
     }
 
-    // Check if job is saved
-    const isSaved = req.session.savedJobs.some(savedJob => savedJob.id === id);
-
     res.render('job-detail', {
       title: `${job.title} - FreelanceHub`,
-      job: job,
-      countryInfo: countryInfo,
-      isSaved: isSaved,
-      currencies: getPopularCurrencies()
+      job,
+      countryInfo,
+      currencies: getPopularCurrencies(),
+      isSaved: req.session.savedJobs.some(saved => saved.id === adref)
     });
+
   } catch (error) {
     console.error('Job Detail Error:', error);
     res.render('error', {
       title: 'Error',
       message: 'An error occurred while loading job details.',
-      error: error
+      error
     });
   }
 });
@@ -120,15 +117,16 @@ router.post('/save/:id', (req, res) => {
   const { id } = req.params;
   const { title, company, location } = req.body;
 
-  // Check if already saved
+  if (!req.session.savedJobs) req.session.savedJobs = [];
+
   const alreadySaved = req.session.savedJobs.some(job => job.id === id);
 
   if (!alreadySaved) {
     req.session.savedJobs.push({
-      id: id,
-      title: title,
-      company: company,
-      location: location,
+      id,
+      title,
+      company,
+      location,
       savedAt: new Date()
     });
   }
@@ -139,15 +137,20 @@ router.post('/save/:id', (req, res) => {
 // Remove saved job
 router.post('/unsave/:id', (req, res) => {
   const { id } = req.params;
+
+  if (!req.session.savedJobs) req.session.savedJobs = [];
+
   req.session.savedJobs = req.session.savedJobs.filter(job => job.id !== id);
   res.json({ success: true, saved: false });
 });
 
 // View saved jobs
 router.get('/saved', (req, res) => {
+  if (!req.session.savedJobs) req.session.savedJobs = [];
+
   res.render('saved-jobs', {
     title: 'Saved Jobs - FreelanceHub',
-    savedJobs: req.session.savedJobs || []
+    savedJobs: req.session.savedJobs
   });
 });
 
