@@ -11,6 +11,16 @@ router.get('/', async (req, res) => {
     const companiesResult = await getTopCompanies('us');
     const currencies = getPopularCurrencies();
 
+    // Store featured jobs in session cache
+    if (jobsResult.success && jobsResult.data.length > 0) {
+      if (!req.session.jobsCache) {
+        req.session.jobsCache = {};
+      }
+      jobsResult.data.forEach(job => {
+        req.session.jobsCache[job.id] = job;
+      });
+    }
+
     res.render('index', {
       title: 'FreelanceHub - Find Your Next Opportunity',
       featuredJobs: jobsResult.success ? jobsResult.data.slice(0, 6) : [],

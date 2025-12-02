@@ -94,7 +94,7 @@
                 <div class="job-card-header">
                   <div>
                     <h3 class="job-title">
-                      <a href="/jobs/detail/<%= job.id %>?country=<%= country %>"><%= job.title %></a>
+                      <a href="/jobs/detail/<%= encodeURIComponent(job.id) %>"><%= job.title %></a>
                     </h3>
                     <div class="company-name"><%= job.company.display_name %></div>
                   </div>
@@ -144,7 +144,7 @@
                 
                 <p class="job-description"><%= job.description.substring(0, 250) %>...</p>
                 
-                <a href="/jobs/detail/<%= job.id %>?country=<%= country %>" class="btn btn-secondary">View Full Details</a>
+                <a href="/jobs/detail/<%= encodeURIComponent(job.id) %>" class="btn btn-secondary">View Full Details</a>
               </div>
             <% }); %>
           <% } %>

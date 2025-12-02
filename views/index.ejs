@@ -110,7 +110,7 @@
               
               <p class="job-description"><%= job.description.substring(0, 150) %>...</p>
               
-              <a href="/jobs/detail/<%= job.id %>?country=us" class="btn btn-secondary">View Details</a>
+              <a href="/jobs/detail/<%= encodeURIComponent(job.id) %>" class="btn btn-secondary">View Details</a>
             </div>
           <% }); %>
         </div>
